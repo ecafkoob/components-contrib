@@ -97,7 +97,8 @@ func (m *Middleware) GetHandler(metadata middleware.Metadata) (func(h fasthttp.R
 				sentinel.WithTrafficType(base.Inbound),
 			)
 			if err != nil {
-				ctx.Error(fasthttp.StatusMessage(fasthttp.StatusTooManyRequests), fasthttp.StatusTooManyRequests)
+				//ctx.Error(fasthttp.StatusMessage(fasthttp.StatusTooManyRequests), fasthttp.StatusTooManyRequests)
+				ctx.Error("oh no ~~~ you are too fast,slow down~~~",429)
 				sentinel.TraceError(entry, errors.New("biz error"))
 			} else {
 				sentinel.TraceError(entry, errors.New("biz error"))
