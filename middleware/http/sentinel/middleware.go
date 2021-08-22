@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/alibaba/sentinel-golang/core/circuitbreaker"
+	"github.com/alibaba/sentinel-golang/logging"
 	"github.com/alibaba/sentinel-golang/util"
 
 	sentinel "github.com/alibaba/sentinel-golang/api"
@@ -79,6 +80,9 @@ func (m *Middleware) GetHandler(metadata middleware.Metadata) (func(h fasthttp.R
 
 	circuitbreaker.RegisterStateChangeListeners(&stateChangeTestListener{})
 
+	logging.Info("[CircuitBreaker ErrorCount] Sentinel Go circuit breaking demo is running. You may see the pass/block metric in the metric log.")
+
+	m.logger.Info("[CircuitBreaker ErrorCount] Sentinel Go circuit breaking demo is running. You may see the pass/block metric in the metric log.")
 	err = m.loadSentinelRules(meta)
 	if err != nil {
 		return nil, err
@@ -94,7 +98,9 @@ func (m *Middleware) GetHandler(metadata middleware.Metadata) (func(h fasthttp.R
 			)
 			if err != nil {
 				ctx.Error(fasthttp.StatusMessage(fasthttp.StatusTooManyRequests), fasthttp.StatusTooManyRequests)
-
+				sentinel.TraceError(entry, errors.New("biz error"))
+			} else {
+				sentinel.TraceError(entry, errors.New("biz error"))
 				return
 			}
 
