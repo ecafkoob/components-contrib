@@ -8,6 +8,8 @@ package sentinel
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/alibaba/sentinel-golang/core/circuitbreaker"
+	"github.com/alibaba/sentinel-golang/util"
 
 	sentinel "github.com/alibaba/sentinel-golang/api"
 	"github.com/alibaba/sentinel-golang/core/base"
@@ -17,6 +19,23 @@ import (
 	"github.com/pkg/errors"
 	"github.com/valyala/fasthttp"
 )
+
+
+type stateChangeTestListener struct {
+}
+
+func (s *stateChangeTestListener) OnTransformToClosed(prev circuitbreaker.State, rule circuitbreaker.Rule) {
+	fmt.Printf("rule.steategy: %+v, From %s to Closed, time: %d\n", rule.Strategy, prev.String(), util.CurrentTimeMillis())
+}
+
+func (s *stateChangeTestListener) OnTransformToOpen(prev circuitbreaker.State, rule circuitbreaker.Rule, snapshot interface{}) {
+	fmt.Printf("rule.steategy: %+v, From %s to Open, snapshot: %d, time: %d\n", rule.Strategy, prev.String(), snapshot, util.CurrentTimeMillis())
+}
+
+func (s *stateChangeTestListener) OnTransformToHalfOpen(prev circuitbreaker.State, rule circuitbreaker.Rule) {
+	fmt.Printf("rule.steategy: %+v, From %s to Half-Open, time: %d\n", rule.Strategy, prev.String(), util.CurrentTimeMillis())
+}
+
 
 type middlewareMetadata struct {
 	AppName string `json:"appName"`
@@ -57,6 +76,8 @@ func (m *Middleware) GetHandler(metadata middleware.Metadata) (func(h fasthttp.R
 	if err != nil {
 		return nil, errors.Wrapf(err, "error to init sentinel with config: %s", conf)
 	}
+
+	circuitbreaker.RegisterStateChangeListeners(&stateChangeTestListener{})
 
 	err = m.loadSentinelRules(meta)
 	if err != nil {

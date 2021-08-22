@@ -1,4 +1,4 @@
-module github.com/dapr/components-contrib
+module github.com/ecafkoob/components-contrib
 
 go 1.16
 
@@ -157,5 +157,3 @@ require (
 )
 
 replace k8s.io/client => github.com/kubernetes-client/go v0.0.0-20190928040339-c757968c4c36
-
-replace github.com/dapr/components-contrib => ../components-contrib
